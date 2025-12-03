@@ -18,17 +18,52 @@ def Ri(v1,v0):
 def Ro(v1,v2):
     return RL*(v1-v2)/(v2)
 
+import numpy as np
 
-def averagePeak(signal):
+def averagePeak(signal,filter=5):
+    signal = np.array(signal)
+    signal = signal-np.mean(signal)
+    signal = np.abs(signal)
+    signalCutOff = np.mean(signal)*np.sqrt(2)
+    mask = signal>=signalCutOff
+
+    segments = []
+    current_segment = []
+
+    for value, is_high in zip(signal, mask):
+        if is_high:
+            current_segment.append(value)
+        else:
+            if current_segment and len(current_segment)>=filter:
+                segments.append(current_segment)
+                current_segment = []
+    
+    # Add last segment if still open
+    if current_segment and len(current_segment)>=filter:
+        segments.append(current_segment)
+
+    peakVals = []
+    for segment in segments:
+        peakVals.append(np.max(np.array(segment)))
+   
+    continuous = [val for seg in segments for val in seg]
+    # plt.plot(continuous)
+    # plt.show()
+
+    return np.mean(np.array(peakVals))
+        
+
+
+
+def findPeaks(signal):
     peaks = []
     for i in range(1, len(signal)-1):
         if signal[i-1] < signal[i] and signal[i] > signal[i+1]:
             if signal[i]>0:
-                peaks.append((signal[i]))
-    return np.mean(peaks)
+                peaks.append(i)
+    return peaks
 
-
-dir_path = os.path.dirname(os.path.realpath(__file__))+"/data/scopedata"
+dir_path = os.path.dirname(os.path.realpath(__file__))+"/data/oldScopeData"
 file_list = os.listdir(dir_path)
 
 amplitudeData = []
@@ -41,8 +76,12 @@ for file_name in file_list:
     unitIndex = max(file_name.find("mv"),file_name.find("V"))
     # print(unit)
     # print(file_name[:unitIndex])
+    Av0 = 0.5
+    try:
+        Av0 = float(file_name[:unitIndex].strip())*unitScale
+    except:
+        pass
 
-    Av0 = float(file_name[:unitIndex].strip())*unitScale
     print(Av0)
 
     skipLinesStart = 34
@@ -50,16 +89,22 @@ for file_name in file_list:
     t,v2_data,v1_data= np.array(list(csv.reader(dataFile.readlines()[skipLinesStart:skipLinesEnd]))).T
     dataFile.close()
 
-    t = np.array([element for element in t],dtype=float)-2
-    v1_data = np.array([element for element in v1_data],dtype=float)-2
+    t = np.array([element for element in t],dtype=float)
+    v1_data = np.array([element for element in v1_data],dtype=float)
     v2_data = np.array([element for element in v2_data],dtype=float)
 
     # if Av0 == 0.5:
     #     plt.plot(t,v1_data)
+    #     plt.plot(t,v2_data)
+    #     peaks = findPeaks(v1_data)
+    #     for peak in peaks:
+    #         plt.axvline(x=t[peak])
     #     plt.show()
 
     Av1 = averagePeak(v1_data)
     Av2 = averagePeak(v2_data)
+    Av1 = np.max(v1_data-np.mean(v1_data))
+    Av2 = np.max(v2_data-np.mean(v2_data))
 
     # Av1 = min(Av1,Av0)
     # Av2 = min(Av2,Av0)

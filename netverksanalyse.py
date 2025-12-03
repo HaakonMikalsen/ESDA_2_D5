@@ -13,13 +13,13 @@ import matplotlib.pyplot as plt
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-networkFilePath = dir_path+r"/data/frekvensrespons krets 500mv.csv"
+networkFilePath = dir_path+r"/data/networkNew.csv"
 
 dataFile = codecs.open(networkFilePath, encoding="utf-8", errors="ignore")
 
 
 skipLinesStart = 34
-skipLinesEnd = 155
+skipLinesEnd = None
 f,amplitude= np.array(list(csv.reader(dataFile.readlines()[skipLinesStart:skipLinesEnd]))).T
 dataFile.close()
 
@@ -50,7 +50,7 @@ plt.plot(
     label="Amplituderespons"
 )
 plt.axvline(x=35,color="crimson",linestyle="--",label="Knekkfrekvens 35Hz")
-
+plt.xlim(0,10**5)
 # plt.plot(
 #     t * 1000, signal * 1000, linewidth=2, color="crimson", label="Faktisk signal"
 # )
@@ -61,5 +61,5 @@ plt.legend(frameon=True, edgecolor="dimgray", facecolor="lavender", fontsize=12)
 plt.tight_layout()
 
 
-plt.savefig("./bilder/frekres.png")
+# plt.savefig("./bilder/frekres.png")
 plt.show()
