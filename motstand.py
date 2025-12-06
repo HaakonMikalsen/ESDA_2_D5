@@ -14,7 +14,7 @@ RL = 180
 def Ri(v1,v0):
     if (v0==v1):
         return 0
-    return RK*v1/(v0-v1)
+    return (RK*v1)/(v0-v1)
 def Ro(v1,v2):
     return RL*(v1-v2)/(v2)
 
@@ -63,7 +63,8 @@ def findPeaks(signal):
                 peaks.append(i)
     return peaks
 
-dir_path = os.path.dirname(os.path.realpath(__file__))+"/data/oldScopeData"
+# dir_path = os.path.dirname(os.path.realpath(__file__))+"/data/oldScopeData"
+dir_path = os.path.dirname(os.path.realpath(__file__))+"/data/scopedata"
 file_list = os.listdir(dir_path)
 
 amplitudeData = []
@@ -103,8 +104,8 @@ for file_name in file_list:
 
     Av1 = averagePeak(v1_data)
     Av2 = averagePeak(v2_data)
-    Av1 = np.max(v1_data-np.mean(v1_data))
-    Av2 = np.max(v2_data-np.mean(v2_data))
+    # Av1 = np.max(v1_data-np.mean(v1_data))
+    # Av2 = np.max(v2_data-np.mean(v2_data))
 
     # Av1 = min(Av1,Av0)
     # Av2 = min(Av2,Av0)
@@ -115,9 +116,11 @@ for file_name in file_list:
         }
     )
 
+print(f"|V_0|V_1|V_2|R_in|R_o|")
 amplitudeData = sorted(amplitudeData,key=lambda x: x["V0"])
 for point in amplitudeData:
     v0 = point["V0"]
     v1 =point["V1"]
     v2 = point["V2"]
-    print(f"|{v0:.3f}|{v1:.3f}|{v2:.3f}|{abs(v2-v0):.3f}|{(v2/v0):.3f}|{Ri(v1,v0):.3f}|{Ro(v1,v2):.3f}|")
+    # print(f"|{v0:.5f}|{v1:.5f}|{v2:.5f}|{abs(v2-v0):.3f}|{(v2/v0):.3f}|{Ri(v1,v0):.3f}|{Ro(v1,v2):.3f}|")
+    print(f"|{v0:.5f}|{v1:.5f}|{v2:.5f}|{Ri(v1,v0):.3f}|{Ro(v1,v2):.3f}|")
